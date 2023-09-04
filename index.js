@@ -53,10 +53,20 @@ app.get(`/api/persons/:id`, (request, response) => {
     if(!person){
         return response.status(404).json({
             error: `content missing`
-        })
+        });
     }
 
     response.json(person);
+
+})
+
+app.delete('/api/persons/:id', (request, response) => {
+
+    const id = Number(request.params.id);
+    
+    persons = persons.filter(p => p.id !== id)
+
+    response.status(204).end()
 
 })
 
