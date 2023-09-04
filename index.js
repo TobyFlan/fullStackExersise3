@@ -26,10 +26,26 @@ let persons = [
     }
 ]
 
-
+//return all people saved to the server
 app.get(`/api/persons`, (request, response) => {
     response.json(persons)
 })
+
+
+//return info about the server
+app.get(`/info`, (request, response) => {
+
+    let date = new Date()
+
+    response.send(`
+        <div>
+            <p>Phonebook has info on ${persons.length} people</p>
+            ${date}
+        </div>
+    `)
+})
+
+
 
 
 const PORT = 3001;
