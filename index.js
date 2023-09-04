@@ -45,6 +45,7 @@ app.get(`/info`, (request, response) => {
     `)
 })
 
+//return info about a specific person in the phonebook
 app.get(`/api/persons/:id`, (request, response) => {
 
     const id = Number(request.params.id);
@@ -60,6 +61,7 @@ app.get(`/api/persons/:id`, (request, response) => {
 
 })
 
+//delete a person from the phonebook
 app.delete('/api/persons/:id', (request, response) => {
 
     const id = Number(request.params.id);
@@ -67,6 +69,48 @@ app.delete('/api/persons/:id', (request, response) => {
     persons = persons.filter(p => p.id !== id)
 
     response.status(204).end()
+
+})
+
+
+//generate random new id. Random range is big enough so there
+//should not be any collsisions
+const generateId = () => {
+    return Math.floor(Math.random() * (10000 + 1))
+}
+
+//add a new person to the phonebook.
+app.post('/api/persons', (request, response) => {
+
+    const body = request.body
+
+    //sanity check on input data
+    if(!body.number || !body.name){
+        return response.status(400).json({
+            error: "number or name missing"
+        })
+    }
+
+    //check if name already in phonebook    
+    const names = persons.map(p => p.name.toLowerCase());
+    if(names.includes(body.name.toLowerCase())){
+        return response.status(204).json({
+            error: "name must be unique"
+        })
+    }
+    
+
+    const person = {
+        id: generateId(),
+        name: body.name,
+        number: body.number,
+    }
+
+    persons = persons.concat(person);
+
+    console.log(`added new person at index: ${person.id}`);
+    
+    response.json(person);
 
 })
 
