@@ -1,7 +1,15 @@
 const express = require('express')
 const app = express()
+var morgan = require('morgan')
 
 app.use(express.json())
+
+
+morgan.token('new-person', (req, res) => {
+    return JSON.stringify(req.body)
+})
+
+app.use(morgan(':method :url :status :res[content-length] :response-time ms :new-person'))
 
 let persons = [
     { 
@@ -78,6 +86,8 @@ app.delete('/api/persons/:id', (request, response) => {
 const generateId = () => {
     return Math.floor(Math.random() * (10000 + 1))
 }
+
+
 
 //add a new person to the phonebook.
 app.post('/api/persons', (request, response) => {
