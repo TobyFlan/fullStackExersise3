@@ -60,21 +60,12 @@ app.get(`/info`, (request, response) => {
         </div>
     `)
 })
-
+    
 //return info about a specific person in the phonebook
 app.get(`/api/persons/:id`, (request, response) => {
-
-    const id = Number(request.params.id);
-    const person = persons.find(person => person.id === id);
-
-    if(!person){
-        return response.status(404).json({
-            error: `content missing`
-        });
-    }
-
-    response.json(person);
-
+    Person.findById(request.params.id).then(person => {
+        response.json(person);
+    })
 })
 
 //delete a person from the phonebook
@@ -88,17 +79,8 @@ app.delete('/api/persons/:id', (request, response) => {
 
 })
 
-
-//generate random new id. Random range is big enough so there
-//should not be any collsisions
-const generateId = () => {
-    return Math.floor(Math.random() * (10000 + 1))
-}
-
-
-
-//add a new person to the phonebook.
-app.post('/api/persons', (request, response) => {
+//add a new person to the phonebook database
+app.post('/api/persons', async (request, response) => {
 
     const body = request.body
 
@@ -110,32 +92,30 @@ app.post('/api/persons', (request, response) => {
     }
 
     //check if name already in phonebook    
-    const names = persons.map(p => p.name.toLowerCase());
-    if(names.includes(body.name.toLowerCase())){
+    const existingPerson = await Person.findOne({ name: body.name });
+
+    if (existingPerson) {
         return response.status(204).json({
             error: "name must be unique"
-        })
+        });
     }
     
+    console.log('adding new person now');
+    
 
-    const person = {
-        id: generateId(),
+    const person = new Person({
         name: body.name,
         number: body.number,
-    }
+    })
 
-    persons = persons.concat(person);
-
-    console.log(`added new person at index: ${person.id}`);
-    
-    response.json(person);
+    person.save().then(savedPerson => {
+        console.log('added new person to DB');
+        response.json(savedPerson)
+    })
 
 })
 
-
-
-
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT;
 app.listen(PORT, () => {
     console.log(`server running on port ${PORT}`);    
 })
