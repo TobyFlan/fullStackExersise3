@@ -32,12 +32,16 @@ app.get(`/info`, (request, response) => {
 
     let date = new Date()
 
-    response.send(`
+    Person.count({}).then(result => {
+        response.send(`
         <div>
-            <p>Phonebook has info on ${persons.length} people</p>
+            <p>Phonebook has info on ${result} people</p>
             ${date}
         </div>
     `)
+    })
+
+
 })
 
 const errorHandler = (error, request, response, next) => {
