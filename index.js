@@ -104,6 +104,23 @@ app.post('/api/persons', async (request, response) => {
 
 })
 
+//update a persons entry into the phonebook
+app.put('/api/persons/:id', (request, response, next) => {
+
+    const body = request.body;
+
+    const person = {
+        name: body.name,
+        number: body.number,
+    }
+
+    Person.findByIdAndUpdate(request.params.id, person, {new: true})
+        .then(updatedPerson => {
+            response.json(updatedPerson)
+        })
+        .catch(error => next(error))
+})
+
 const PORT = process.env.PORT;
 app.listen(PORT, () => {
     console.log(`server running on port ${PORT}`);    
