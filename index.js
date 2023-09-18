@@ -39,22 +39,33 @@ app.get(`/info`, (request, response) => {
         </div>
     `)
 })
+
+const errorHandler = (error, request, response, next) => {
+    console.log(error.message);
+
+    if(error.name === 'CastError') {
+        return response.status(400).send({ error: "malformed id"});
+    }
+
+    next(error);
+    
+}
+
+app.use(errorHandler)
     
 //return info about a specific person in the phonebook
-app.get(`/api/persons/:id`, (request, response) => {
+app.get(`/api/persons/:id`, (request, response, next) => {
     Person.findById(request.params.id).then(person => {
         response.json(person);
-    })
+    }).catch(error => next(error))
 })
 
 //delete a person from the phonebook
-app.delete('/api/persons/:id', (request, response) => {
+app.delete('/api/persons/:id', (request, response, next) => {
 
     Person.findByIdAndDelete(request.params.id).then(result => {
         response.status(204).end()
-    }).catch(error => {
-        console.log(error);
-    })
+    }).catch(error => next(error))
 })
 
 //add a new person to the phonebook database
